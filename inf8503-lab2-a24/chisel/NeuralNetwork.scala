@@ -22,7 +22,7 @@ class NeuralNetwork extends Module {
   sAxis.tready := true.B
   mAxis.data.tvalid := false.B
   mAxis.data.tlast := false.B
-  mAxis.data.tdata := RegInit(VecInit(Seq.fill(3)(1.U(8.W)))) 
+  mAxis.data.tdata := 0.U
   mAxis.data.tkeep := "b1".U
 
   val index = RegInit(0.U(9.W))
