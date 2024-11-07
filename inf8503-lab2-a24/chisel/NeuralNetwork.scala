@@ -38,10 +38,9 @@ class NeuralNetwork extends Module {
   when(transferCount) {
     mAxis.data.tvalid := true.B
     mAxis.data.tdata := input_data(index2)
-    mAxis.data.tlast := true.B
-    
     index2 := index2 + 1.U
     when(index2 === (input_data.length.U - 1.U)) {
+      mAxis.data.tlast := true.B
       transferCount := false.B
       index2 := 0.U
     }
