@@ -21,6 +21,7 @@ module NeuralNetwork(
   reg  [8:0]      index;
   reg  [8:0]      index2;
   wire [3:0][7:0] _GEN = {{input_data_0}, {input_data_2}, {input_data_1}, {input_data_0}};
+  wire            _GEN_0 = index2 == 9'h2;
   always @(posedge clock) begin
     if (reset) begin
       input_data_0 <= 8'h1;
@@ -31,10 +32,8 @@ module NeuralNetwork(
       index2 <= 9'h0;
     end
     else begin
-      automatic logic _GEN_0;
       automatic logic _GEN_1;
-      _GEN_0 = s_axis_tlast & index == 9'h2;
-      _GEN_1 = index2 == 9'h2;
+      _GEN_1 = s_axis_tlast & index == 9'h2;
       if (s_axis_tvalid & index[1:0] == 2'h0)
         input_data_0 <= s_axis_tdata;
       if (s_axis_tvalid & index[1:0] == 2'h1)
@@ -42,15 +41,15 @@ module NeuralNetwork(
       if (s_axis_tvalid & index[1:0] == 2'h2)
         input_data_2 <= s_axis_tdata;
       transferCount <=
-        ~(transferCount & _GEN_1) & (s_axis_tvalid & _GEN_0 | transferCount);
+        ~(transferCount & _GEN_0) & (s_axis_tvalid & _GEN_1 | transferCount);
       if (s_axis_tvalid) begin
-        if (_GEN_0)
+        if (_GEN_1)
           index <= 9'h0;
         else
           index <= index + 9'h1;
       end
       if (transferCount) begin
-        if (_GEN_1)
+        if (_GEN_0)
           index2 <= 9'h0;
         else
           index2 <= index2 + 9'h1;
@@ -61,6 +60,6 @@ module NeuralNetwork(
   assign m_axis_tdata = transferCount ? _GEN[index2[1:0]] : 8'h0;
   assign m_axis_tkeep = 2'h1;
   assign m_axis_tvalid = transferCount;
-  assign m_axis_tlast = transferCount;
+  assign m_axis_tlast = transferCount & _GEN_0;
 endmodule
 
