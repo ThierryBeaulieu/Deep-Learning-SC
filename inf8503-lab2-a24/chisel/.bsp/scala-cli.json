@@ -1,0 +1,21 @@
+{
+  "name": "scala-cli",
+  "argv": [
+    "C:\\Users\\thier\\Desktop\\inf8503-lab2-a24\\chisel\\scala-cli.exe",
+    "bsp",
+    "--json-options",
+    "C:\\Users\\thier\\Desktop\\inf8503-lab2-a24\\chisel\\.scala-build\\ide-options-v2.json",
+    "--json-launcher-options",
+    "C:\\Users\\thier\\Desktop\\inf8503-lab2-a24\\chisel\\.scala-build\\ide-launcher-options.json",
+    "--envs-file",
+    "C:\\Users\\thier\\Desktop\\inf8503-lab2-a24\\chisel\\.scala-build\\ide-envs.json",
+    "C:\\Users\\thier\\Desktop\\inf8503-lab2-a24\\chisel\\AxiStream.scala",
+    "C:\\Users\\thier\\Desktop\\inf8503-lab2-a24\\chisel\\Example.scala"
+  ],
+  "version": "1.5.1",
+  "bspVersion": "2.1.1",
+  "languages": [
+    "scala",
+    "java"
+  ]
+}
