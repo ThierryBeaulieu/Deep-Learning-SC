@@ -14,29 +14,38 @@ module NeuralNetwork(
   input        m_axis_tready
 );
 
-  wire [7:0][3:0] _GEN = '{4'h1, 4'h1, 4'hF, 4'hC, 4'h8, 4'h4, 4'h2, 4'h1};
+  wire [7:0][4:0] _GEN = '{5'h16, 5'hA, 5'hF, 5'hC, 5'h8, 5'h4, 5'h2, 5'h1};
   reg             sending;
-  reg  [8:0]      sendCounter;
-  wire            _GEN_0 = sendCounter == 9'h5;
+  reg  [2:0]      receiveCounter;
+  reg  [2:0]      sendCounter;
+  wire            _GEN_0 = s_axis_tvalid & s_axis_tlast;
+  wire            _GEN_1 = sending & m_axis_tready;
+  wire            _GEN_2 = sendCounter == receiveCounter - 3'h1;
   always @(posedge clock) begin
     if (reset) begin
       sending <= 1'h0;
-      sendCounter <= 9'h0;
+      receiveCounter <= 3'h0;
+      sendCounter <= 3'h0;
     end
     else begin
-      sending <= ~(sending & _GEN_0) & (s_axis_tvalid & s_axis_tlast | sending);
-      if (sending) begin
-        if (_GEN_0)
-          sendCounter <= 9'h0;
+      automatic logic _GEN_3 = _GEN_1 & _GEN_2;
+      sending <= ~_GEN_3 & (_GEN_0 | sending);
+      if (_GEN_3)
+        receiveCounter <= 3'h0;
+      else if (s_axis_tvalid)
+        receiveCounter <= receiveCounter + 3'h1;
+      if (_GEN_1) begin
+        if (_GEN_2)
+          sendCounter <= 3'h0;
         else
-          sendCounter <= sendCounter + 9'h1;
+          sendCounter <= sendCounter + 3'h1;
       end
     end
   end // always @(posedge)
-  assign s_axis_tready = 1'h1;
-  assign m_axis_tdata = sending ? {4'h0, _GEN[sendCounter[2:0]]} : 8'h0;
+  assign s_axis_tready = ~_GEN_0;
+  assign m_axis_tdata = _GEN_1 ? {3'h0, _GEN[sendCounter]} : 8'h0;
   assign m_axis_tkeep = 2'h1;
-  assign m_axis_tvalid = sending;
-  assign m_axis_tlast = sending & _GEN_0;
+  assign m_axis_tvalid = _GEN_1 & ~_GEN_2;
+  assign m_axis_tlast = _GEN_1 & _GEN_2;
 endmodule
 

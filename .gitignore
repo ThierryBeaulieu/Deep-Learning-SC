@@ -162,3 +162,8 @@ cython_debug/
 #.idea/
 
 scala-cli.exe
+
+.bsp/
+.metals/
+.vscode/
+.scala-build/
