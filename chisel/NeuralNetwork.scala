@@ -14,10 +14,11 @@ class NeuralNetwork extends Module {
 
   val mAxis = Wire(new AxiStreamMasterIf(8))
   IO(Flipped(new AxiStreamExternalIf(8))).suggestName("m_axis").connect(mAxis)
-
   
-  val input_data = RegInit(VecInit(Seq.fill(3)(1.U(8.W)))) 
-  val transferCount = RegInit(false.B)
+  val input_data = VecInit(1.U, 2.U, 4.U, 8.U, 12.U, 15.U) // works with an array of 4, but not 5
+  val sending = RegInit(false.B)
+  val receiveCounter = RegInit(0.U(9.W))
+  val sendCounter = RegInit(0.U(9.W))
 
   sAxis.tready := true.B
   mAxis.data.tvalid := false.B
@@ -25,24 +26,22 @@ class NeuralNetwork extends Module {
   mAxis.data.tdata := 0.U
   mAxis.data.tkeep := "b1".U
 
-  val index = RegInit(0.U(9.W))
   when(sAxis.data.tvalid) {
-    index := index + 1.U
-    input_data(index) := sAxis.data.tdata
-    when(sAxis.data.tlast & index === input_data.length.U - 1.U) {
-      transferCount := true.B
-      index := 0.U
+    receiveCounter := receiveCounter + 1.U
+    when(sAxis.data.tlast) {
+      sending := true.B
     }
   }
-  val index2 = RegInit(0.U(9.W))
-  when(transferCount) {
+  when(sending) {
     mAxis.data.tvalid := true.B
-    mAxis.data.tdata := input_data(index2)
-    index2 := index2 + 1.U
-    when(index2 === (input_data.length.U - 1.U)) {
+    mAxis.data.tlast := false.B
+    mAxis.data.tdata := input_data(sendCounter)
+    sendCounter := sendCounter + 1.U
+    when(sendCounter === receiveCounter - 1.U) {
       mAxis.data.tlast := true.B
-      transferCount := false.B
-      index2 := 0.U
+      sending := false.B
+      receiveCounter := 0.U
+      sendCounter := 0.U
     }
   }
 }

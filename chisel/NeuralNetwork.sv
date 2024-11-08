@@ -14,52 +14,29 @@ module NeuralNetwork(
   input        m_axis_tready
 );
 
-  reg  [7:0]      input_data_0;
-  reg  [7:0]      input_data_1;
-  reg  [7:0]      input_data_2;
-  reg             transferCount;
-  reg  [8:0]      index;
-  reg  [8:0]      index2;
-  wire [3:0][7:0] _GEN = {{input_data_0}, {input_data_2}, {input_data_1}, {input_data_0}};
-  wire            _GEN_0 = index2 == 9'h2;
+  wire [7:0][3:0] _GEN = '{4'h1, 4'h1, 4'hF, 4'hC, 4'h8, 4'h4, 4'h2, 4'h1};
+  reg             sending;
+  reg  [8:0]      sendCounter;
+  wire            _GEN_0 = sendCounter == 9'h5;
   always @(posedge clock) begin
     if (reset) begin
-      input_data_0 <= 8'h1;
-      input_data_1 <= 8'h1;
-      input_data_2 <= 8'h1;
-      transferCount <= 1'h0;
-      index <= 9'h0;
-      index2 <= 9'h0;
+      sending <= 1'h0;
+      sendCounter <= 9'h0;
     end
     else begin
-      automatic logic _GEN_1;
-      _GEN_1 = s_axis_tlast & index == 9'h2;
-      if (s_axis_tvalid & index[1:0] == 2'h0)
-        input_data_0 <= s_axis_tdata;
-      if (s_axis_tvalid & index[1:0] == 2'h1)
-        input_data_1 <= s_axis_tdata;
-      if (s_axis_tvalid & index[1:0] == 2'h2)
-        input_data_2 <= s_axis_tdata;
-      transferCount <=
-        ~(transferCount & _GEN_0) & (s_axis_tvalid & _GEN_1 | transferCount);
-      if (s_axis_tvalid) begin
-        if (_GEN_1)
-          index <= 9'h0;
-        else
-          index <= index + 9'h1;
-      end
-      if (transferCount) begin
+      sending <= ~(sending & _GEN_0) & (s_axis_tvalid & s_axis_tlast | sending);
+      if (sending) begin
         if (_GEN_0)
-          index2 <= 9'h0;
+          sendCounter <= 9'h0;
         else
-          index2 <= index2 + 9'h1;
+          sendCounter <= sendCounter + 9'h1;
       end
     end
   end // always @(posedge)
   assign s_axis_tready = 1'h1;
-  assign m_axis_tdata = transferCount ? _GEN[index2[1:0]] : 8'h0;
+  assign m_axis_tdata = sending ? {4'h0, _GEN[sendCounter[2:0]]} : 8'h0;
   assign m_axis_tkeep = 2'h1;
-  assign m_axis_tvalid = transferCount;
-  assign m_axis_tlast = transferCount & _GEN_0;
+  assign m_axis_tvalid = sending;
+  assign m_axis_tlast = sending & _GEN_0;
 endmodule
 
