@@ -1,5 +1,6 @@
 #include "ap_axi_sdata.h"
 #include "hls_stream.h"
+#include <vector>
 
 void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &B)
 {
@@ -8,12 +9,24 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
 #pragma HLS INTERFACE s_axilite port=return
 
     ap_axis<32,2,5,6> tmp;
+
+    std::vector<ap_axis<32,2,5,6>> something(10);
+
+    bool sending = false;
+
     while(1) {
-        A.read(tmp);
-        tmp.data = tmp.data.to_int() + 5;
-        B.write(tmp);
-        if (tmp.last) {
-            break;
-        }
+    	if (!sending) {
+    		A.read(tmp);
+            if (tmp.last) {
+                sending = true;
+            }
+    	}
+
+    	if (sending) {
+        	tmp.data = tmp.data.to_int() + 5;
+        	B.write(tmp);
+        	break;
+    	}
+
     }
 }
