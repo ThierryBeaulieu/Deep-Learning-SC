@@ -15,9 +15,11 @@ class NeuralNetwork extends Module {
   val mAxis = Wire(new AxiStreamMasterIf(16))
   IO(Flipped(new AxiStreamExternalIf(16))).suggestName("m_axis").connect(mAxis)
 
-  
-  val evenCounter = RegInit(0.U(8.W))
-  val transferCount = RegInit(false.B)
+
+  val sending = RegInit(false.B)
+  // val output_data = RegInit(Vec(Seq.fill(10)(0.S(16.W))))
+  val output_data = VecInit(Seq(-1.S(16.W), -2.S(16.W), -3.S(16.W), -4.S(16.W), -5.S(16.W), -6.S(16.W), -7.S(16.W), -8.S(16.W), 1.S(16.W)))
+  val transferCount = RegInit(0.U(4.W))
 
   sAxis.tready := RegInit(true.B)
   mAxis.data.tvalid := RegInit(false.B)
@@ -26,23 +28,22 @@ class NeuralNetwork extends Module {
   mAxis.data.tkeep := RegInit("b11".U)
 
   when(sAxis.data.tvalid) {
-    when(sAxis.data.tdata(0) === false.B) {
-      evenCounter := evenCounter + 1.U
-    }
     when(sAxis.data.tlast) {
-      transferCount := true.B
+      sending := true.B
     }
   }
 
-
-  val output_data = RegInit(-240.S(16.W))
-
-  when(transferCount && mAxis.tready) {
-    mAxis.data.tvalid := true.B
-    mAxis.data.tlast := true.B
-    mAxis.data.tdata := output_data
-    evenCounter := 0.U
-    transferCount := false.B
+  when(sending && mAxis.tready) {
+    when (transferCount === output_data.length.U) {
+      mAxis.data.tlast := true.B
+      mAxis.data.tvalid := false.B
+      transferCount := 0.U
+    }.otherwise {
+      mAxis.data.tlast := false.B
+      mAxis.data.tvalid := true.B
+      mAxis.data.tdata := output_data(transferCount)
+      transferCount := transferCount + 1.U
+    }
   }
 }
 

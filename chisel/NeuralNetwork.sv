@@ -14,18 +14,46 @@ module NeuralNetwork(
   input         m_axis_tready
 );
 
-  reg  transferCount;
-  wire mAxis_data_tlast = transferCount & m_axis_tready;
+  wire [15:0][15:0] _GEN =
+    '{16'hFFFF,
+      16'hFFFF,
+      16'hFFFF,
+      16'hFFFF,
+      16'hFFFF,
+      16'hFFFF,
+      16'hFFFF,
+      16'h1,
+      16'hFFF8,
+      16'hFFF9,
+      16'hFFFA,
+      16'hFFFB,
+      16'hFFFC,
+      16'hFFFD,
+      16'hFFFE,
+      16'hFFFF};
+  reg               sending;
+  reg  [3:0]        transferCount;
+  wire              _GEN_0 = sending & m_axis_tready;
+  wire              _GEN_1 = transferCount == 4'h9;
   always @(posedge clock) begin
-    if (reset)
-      transferCount <= 1'h0;
-    else
-      transferCount <= ~mAxis_data_tlast & (s_axis_tvalid & s_axis_tlast | transferCount);
+    if (reset) begin
+      sending <= 1'h0;
+      transferCount <= 4'h0;
+    end
+    else begin
+      sending <= s_axis_tvalid & s_axis_tlast | sending;
+      if (_GEN_0) begin
+        if (_GEN_1)
+          transferCount <= 4'h0;
+        else
+          transferCount <= transferCount + 4'h1;
+      end
+    end
   end // always @(posedge)
   assign s_axis_tready = 1'h1;
-  assign m_axis_tdata = mAxis_data_tlast ? 16'hFF10 : 16'h0;
+  assign m_axis_tdata = ~_GEN_0 | _GEN_1 ? 16'h0 : _GEN[transferCount];
   assign m_axis_tkeep = 2'h3;
-  assign m_axis_tvalid = mAxis_data_tlast;
-  assign m_axis_tlast = mAxis_data_tlast;
+  assign m_axis_tvalid = _GEN_0 & ~_GEN_1;
+  assign m_axis_tlast = _GEN_0 & _GEN_1;
 endmodule
 
