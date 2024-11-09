@@ -19,7 +19,6 @@ int main(){
         tmp1.user = 1;
 
         if (j = 2) {
-            cout << "Last" << endl;
             tmp1.last = 1;
         } else {
             tmp1.last = 0;
@@ -28,21 +27,20 @@ int main(){
         tmp1.id = 0;
         tmp1.dest = 1;
         A.write(tmp1);
+        example(A, B);
     }
 
-    example(A, B);
-
     for (int i = 0; i < 3; i++) {
-
 		B.read(tmp2);
-        if (tmp2.data.to_int() != expected_res[i]) {
-        	cout << "Expected ";
-        	cout << expected_res[i];
-        	cout << "Got :";
-        	cout << tmp2.data.to_int() << endl;
-            cout << "Error: result mismatch" << endl;
-            return 1;
-        }
+		if (tmp2.data.to_int() != expected_res[i]){
+			cout << "Index ";
+			cout << i << endl;
+			cout << "Received ";
+			cout << tmp2.data.to_int() << endl;
+			cout << "Expected : ";
+			cout << expected_res[i] << endl;
+			return 1;
+		}
     }
     cout << "Success: results match" << endl;
     return 0;
