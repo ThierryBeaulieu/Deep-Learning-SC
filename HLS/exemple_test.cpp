@@ -6,18 +6,20 @@ using namespace std;
 void example(hls::stream<ap_axis<32, 2, 5, 6>> &A, hls::stream<ap_axis<32, 2, 5, 6>> &B);
 
 int main(){
-    int i = 100;
     hls::stream<ap_axis<32, 2, 5, 6>> A, B;
     ap_axis<32, 2, 5, 6> tmp1, tmp2;
+    // vector<int> expected_res = {5, 9, 247};
+    vector<int> expected_res = {0, 1, 2};
 
-    for (int j = 0; j < 100; j++){
-
-    	tmp1.data = i;
+    for (int j = 0; j < 3; j++)
+    {
+    	tmp1.data = j;
         tmp1.keep = 1;
         tmp1.strb = 1;
         tmp1.user = 1;
 
-        if (j = 99) {
+        if (j = 2) {
+            cout << "Last" << endl;
             tmp1.last = 1;
         } else {
             tmp1.last = 0;
@@ -26,10 +28,18 @@ int main(){
         tmp1.id = 0;
         tmp1.dest = 1;
         A.write(tmp1);
-        example(A, B);
-        B.read(tmp2);
+    }
 
-        if (tmp2.data.to_int() != 105) {
+    example(A, B);
+
+    for (int i = 0; i < 3; i++) {
+
+		B.read(tmp2);
+        if (tmp2.data.to_int() != expected_res[i]) {
+        	cout << "Expected ";
+        	cout << expected_res[i];
+        	cout << "Got :";
+        	cout << tmp2.data.to_int() << endl;
             cout << "Error: result mismatch" << endl;
             return 1;
         }
