@@ -15,41 +15,34 @@ class NeuralNetwork extends Module {
   val mAxis = Wire(new AxiStreamMasterIf(16))
   IO(Flipped(new AxiStreamExternalIf(16))).suggestName("m_axis").connect(mAxis)
 
-  val sending = RegInit(false.B)
-  val sendCounter = RegInit(0.U(9.W))
-  val receiveCounter = RegInit(0.U(9.W))
-  val input_data = RegInit(VecInit(Seq.fill(401)(0.S(16.W))))
+  
+  val evenCounter = RegInit(0.U(8.W))
+  val transferCount = RegInit(false.B)
 
-  sAxis.tready := RegInit(true.B) // ready to receive some data
-
+  sAxis.tready := RegInit(true.B)
   mAxis.data.tvalid := RegInit(false.B)
   mAxis.data.tlast := RegInit(false.B)
-  mAxis.data.tdata := RegInit(0.S)
-  mAxis.data.tkeep := RegInit("b1".U)
+  mAxis.data.tdata := RegInit(0.S(16.W))
+  mAxis.data.tkeep := RegInit("b11".U)
 
-  when(sAxis.data.tvalid) { // the data is valid
-    input_data(receiveCounter) := sAxis.data.tdata
-    receiveCounter := receiveCounter + 1.U
-    when(sAxis.data.tlast) { // the last data is here
-      sending := true.B
-      sAxis.tready := false.B // no longer ready to receive some data
+  when(sAxis.data.tvalid) {
+    when(sAxis.data.tdata(0) === false.B) {
+      evenCounter := evenCounter + 1.U
+    }
+    when(sAxis.data.tlast) {
+      transferCount := true.B
     }
   }
-  when(sending && mAxis.tready) { // when the receiver is ready
-    mAxis.data.tvalid := true.B // it's true
-    mAxis.data.tlast := false.B // not the last
-    mAxis.data.tdata := input_data(sendCounter) //
-  
-    when(sendCounter === receiveCounter - 1.U) {
-      mAxis.data.tlast := true.B
-      mAxis.data.tvalid := false.B
-      sending := false.B
-      receiveCounter := 0.U
-      sendCounter := 0.U
-      sAxis.tready := true.B
-    }.otherwise {
-      sendCounter := sendCounter + 1.U
-    }
+
+
+  val output_data = RegInit(-240.S(16.W))
+
+  when(transferCount && mAxis.tready) {
+    mAxis.data.tvalid := true.B
+    mAxis.data.tlast := true.B
+    mAxis.data.tdata := output_data
+    evenCounter := 0.U
+    transferCount := false.B
   }
 }
 
