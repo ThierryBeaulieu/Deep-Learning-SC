@@ -1,6 +1,7 @@
 #include "ap_axi_sdata.h"
 #include "hls_stream.h"
 #include <vector>
+
 #define test3
 
 #ifdef prod
@@ -40,36 +41,35 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
 #pragma HLS INTERFACE axis port=B
 #pragma HLS INTERFACE s_axilite port=return
 
+#ifdef test3
+	int weights[3][3] = {
+		{1, 0, 0},
+		{0, 1, 0},
+		{0, 0, 1}
+};
+#endif
+
     ap_axis<32,2,5,6> tmp;
 
-    int res[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+    int res[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 10};
 
     bool sending = false;
-    int col_index = 0; // 0 -> 9
-    int row_size = sizeof(weights) / sizeof(weights[0]); // 10
+    int index = 0;
+    int transferCount = 0;
 
-    while(1) {
-    	if (!sending) {
-    		A.read(tmp);
-            for (int row_index = 0; row_index < row_size; row_index++) {
-            	res[col_index] = res[col_index] + (weights[row_index][col_index] * tmp.data.to_int());
-            }
-            col_index++;
+	while (!sending) {
+		A.read(tmp);
+		res[index] = tmp.data.to_int();
+		index++;
+		if (tmp.last) {
+			sending = true;
+		}
+	}
 
-    		if (tmp.last) {
-                sending = true;
-            }
-    	}
-
-    	if (sending) {
-            for (int row_index = 0; row_index < 10; row_index++) {
-        	    tmp.data = res[row_index];
-        	    tmp.keep = 1;
-        	    B.write(tmp);
-            }
-        	break;
-    	}
-
-
+	if (sending) {
+		for (int i = 0; i < 10; i++) {
+			tmp.data = res[i] + 10;
+			B.write(tmp);
+		}
     }
 }
