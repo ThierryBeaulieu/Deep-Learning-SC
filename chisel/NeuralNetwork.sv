@@ -15,21 +15,21 @@ module NeuralNetwork(
 );
 
   reg               sending;
-  reg  [31:0]       output_data_0;
-  reg  [31:0]       output_data_1;
-  reg  [31:0]       output_data_2;
-  reg  [31:0]       output_data_3;
-  reg  [31:0]       output_data_4;
-  reg  [31:0]       output_data_5;
-  reg  [31:0]       output_data_6;
-  reg  [31:0]       output_data_7;
-  reg  [31:0]       output_data_8;
-  reg  [31:0]       output_data_9;
+  reg  [15:0]       output_data_0;
+  reg  [15:0]       output_data_1;
+  reg  [15:0]       output_data_2;
+  reg  [15:0]       output_data_3;
+  reg  [15:0]       output_data_4;
+  reg  [15:0]       output_data_5;
+  reg  [15:0]       output_data_6;
+  reg  [15:0]       output_data_7;
+  reg  [15:0]       output_data_8;
+  reg  [15:0]       output_data_9;
   reg  [3:0]        transferCount;
   reg  [8:0]        row;
   wire              _GEN = sending & m_axis_tready;
   wire              _GEN_0 = transferCount == 4'hA;
-  wire [15:0][31:0] _GEN_1 =
+  wire [15:0][15:0] _GEN_1 =
     {{output_data_0},
      {output_data_0},
      {output_data_0},
@@ -49,16 +49,16 @@ module NeuralNetwork(
   always @(posedge clock) begin
     if (reset) begin
       sending <= 1'h0;
-      output_data_0 <= 32'h0;
-      output_data_1 <= 32'h0;
-      output_data_2 <= 32'h0;
-      output_data_3 <= 32'h0;
-      output_data_4 <= 32'h0;
-      output_data_5 <= 32'h0;
-      output_data_6 <= 32'h0;
-      output_data_7 <= 32'h0;
-      output_data_8 <= 32'h0;
-      output_data_9 <= 32'h0;
+      output_data_0 <= 16'h0;
+      output_data_1 <= 16'h0;
+      output_data_2 <= 16'h0;
+      output_data_3 <= 16'h0;
+      output_data_4 <= 16'h0;
+      output_data_5 <= 16'h0;
+      output_data_6 <= 16'h0;
+      output_data_7 <= 16'h0;
+      output_data_8 <= 16'h0;
+      output_data_9 <= 16'h0;
       transferCount <= 4'h0;
       row <= 9'h0;
     end
@@ -66,16 +66,16 @@ module NeuralNetwork(
       automatic logic _GEN_2 = _GEN & _GEN_0;
       sending <= ~_GEN_2 & (s_axis_tvalid & s_axis_tlast | sending);
       if (_GEN_2) begin
-        output_data_0 <= 32'h0;
-        output_data_1 <= 32'h0;
-        output_data_2 <= 32'h0;
-        output_data_3 <= 32'h0;
-        output_data_4 <= 32'h0;
-        output_data_5 <= 32'h0;
-        output_data_6 <= 32'h0;
-        output_data_7 <= 32'h0;
-        output_data_8 <= 32'h0;
-        output_data_9 <= 32'h0;
+        output_data_0 <= 16'h0;
+        output_data_1 <= 16'h0;
+        output_data_2 <= 16'h0;
+        output_data_3 <= 16'h0;
+        output_data_4 <= 16'h0;
+        output_data_5 <= 16'h0;
+        output_data_6 <= 16'h0;
+        output_data_7 <= 16'h0;
+        output_data_8 <= 16'h0;
+        output_data_9 <= 16'h0;
         row <= 9'h0;
       end
       else if (s_axis_tvalid) begin
@@ -5209,27 +5209,16 @@ module NeuralNetwork(
             16'h0,
             16'h0,
             16'hFFCE};
-        automatic logic [15:0]        _GEN_13 = _GEN_12[row];
-        automatic logic [31:0]        _GEN_14 = {{16{s_axis_tdata[15]}}, s_axis_tdata};
-        automatic logic [15:0]        _GEN_15 = _GEN_11[row];
-        automatic logic [15:0]        _GEN_16 = _GEN_10[row];
-        automatic logic [15:0]        _GEN_17 = _GEN_9[row];
-        automatic logic [15:0]        _GEN_18 = _GEN_8[row];
-        automatic logic [15:0]        _GEN_19 = _GEN_7[row];
-        automatic logic [15:0]        _GEN_20 = _GEN_6[row];
-        automatic logic [15:0]        _GEN_21 = _GEN_5[row];
-        automatic logic [15:0]        _GEN_22 = _GEN_4[row];
-        automatic logic [15:0]        _GEN_23 = _GEN_3[row];
-        output_data_0 <= output_data_0 + {{16{_GEN_13[15]}}, _GEN_13} * _GEN_14;
-        output_data_1 <= output_data_1 + {{16{_GEN_15[15]}}, _GEN_15} * _GEN_14;
-        output_data_2 <= output_data_2 + {{16{_GEN_16[15]}}, _GEN_16} * _GEN_14;
-        output_data_3 <= output_data_3 + {{16{_GEN_17[15]}}, _GEN_17} * _GEN_14;
-        output_data_4 <= output_data_4 + {{16{_GEN_18[15]}}, _GEN_18} * _GEN_14;
-        output_data_5 <= output_data_5 + {{16{_GEN_19[15]}}, _GEN_19} * _GEN_14;
-        output_data_6 <= output_data_6 + {{16{_GEN_20[15]}}, _GEN_20} * _GEN_14;
-        output_data_7 <= output_data_7 + {{16{_GEN_21[15]}}, _GEN_21} * _GEN_14;
-        output_data_8 <= output_data_8 + {{16{_GEN_22[15]}}, _GEN_22} * _GEN_14;
-        output_data_9 <= output_data_9 + {{16{_GEN_23[15]}}, _GEN_23} * _GEN_14;
+        output_data_0 <= output_data_0 + _GEN_12[row] * s_axis_tdata;
+        output_data_1 <= output_data_1 + _GEN_11[row] * s_axis_tdata;
+        output_data_2 <= output_data_2 + _GEN_10[row] * s_axis_tdata;
+        output_data_3 <= output_data_3 + _GEN_9[row] * s_axis_tdata;
+        output_data_4 <= output_data_4 + _GEN_8[row] * s_axis_tdata;
+        output_data_5 <= output_data_5 + _GEN_7[row] * s_axis_tdata;
+        output_data_6 <= output_data_6 + _GEN_6[row] * s_axis_tdata;
+        output_data_7 <= output_data_7 + _GEN_5[row] * s_axis_tdata;
+        output_data_8 <= output_data_8 + _GEN_4[row] * s_axis_tdata;
+        output_data_9 <= output_data_9 + _GEN_3[row] * s_axis_tdata;
         row <= row + 9'h1;
       end
       if (_GEN) begin
@@ -5241,7 +5230,7 @@ module NeuralNetwork(
     end
   end // always @(posedge)
   assign s_axis_tready = 1'h1;
-  assign m_axis_tdata = ~_GEN | _GEN_0 ? 16'h0 : _GEN_1[transferCount][15:0];
+  assign m_axis_tdata = ~_GEN | _GEN_0 ? 16'h0 : _GEN_1[transferCount];
   assign m_axis_tkeep = 2'h3;
   assign m_axis_tvalid = _GEN & ~_GEN_0;
   assign m_axis_tlast = _GEN & _GEN_0;

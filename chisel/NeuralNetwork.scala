@@ -35,7 +35,7 @@ class NeuralNetwork extends Module {
   val weights = RegInit(VecInit.tabulate(LabelW, InputW){ (x, y) => rawData(x)(y).S(16.W) })
 
   val sending = RegInit(false.B)
-  val output_data = RegInit(VecInit(Seq.fill(10)(0.S(32.W))))
+  val output_data = RegInit(VecInit(Seq.fill(10)(0.S(16.W))))
   val transferCount = RegInit(0.U(4.W))
   val row = RegInit(0.U(9.W)) // 0 to 401
 
