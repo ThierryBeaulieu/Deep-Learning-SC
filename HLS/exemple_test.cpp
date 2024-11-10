@@ -15,7 +15,7 @@ int main(){
 
 		for (int j = 0; j < 10; j++)
 		{
-			tmp1.data = expected_res[j];
+			tmp1.data = 1;
 			tmp1.keep = 1;
 			tmp1.strb = 1;
 			tmp1.user = 1;
