@@ -19,21 +19,17 @@ int weights[10][401] = {
 };
 #endif
 
-#ifdef test2
-int weights[3][3] = {
-    {-1, 1, 2},
-    {3, -1, 5},
-    {6, 7, 120}
-};
-#endif
+int res[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+bool sending = false;
+int index = 0;
+int transferCount = 0;
 
-#ifdef test3
+
 int weights[3][3] = {
-    {1, 0, 0},
-    {0, 1, 0},
-    {0, 0, 1}
+	{1, 0, 0},
+	{0, 1, 0},
+	{0, 0, 1}
 };
-#endif
 
 void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &B)
 {
@@ -41,35 +37,30 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
 #pragma HLS INTERFACE axis port=B
 #pragma HLS INTERFACE s_axilite port=return
 
-#ifdef test3
-	int weights[3][3] = {
-		{1, 0, 0},
-		{0, 1, 0},
-		{0, 0, 1}
-};
-#endif
-
     ap_axis<32,2,5,6> tmp;
 
-    int res[10] = {9, 8, 7, 6, 5, 4, 3, 2, 1, 10};
-
-    bool sending = false;
-    int index = 0;
-    int transferCount = 0;
-
-	while (!sending) {
+	if (!sending) {
 		A.read(tmp);
 		res[index] = tmp.data.to_int();
 		index++;
 		if (tmp.last) {
 			sending = true;
+			return;
 		}
 	}
 
 	if (sending) {
-		for (int i = 0; i < 10; i++) {
-			tmp.data = res[i] + 10;
+		if (transferCount == sizeof(res) / sizeof(res[0])){
+			sending = false;
+			transferCount = 0;
+			index = 0;
+			for (int i = 0; i < sizeof(res)/sizeof(res[0]); i++){
+				res[i] = 0;
+			}
+		} else {
+			tmp.data = res[transferCount];
 			B.write(tmp);
+			transferCount++;
 		}
     }
 }

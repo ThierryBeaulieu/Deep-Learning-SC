@@ -9,7 +9,7 @@ int main(){
     hls::stream<ap_axis<32, 2, 5, 6>> A, B;
     ap_axis<32, 2, 5, 6> tmp1, tmp2;
     //vector<int> expected_res = {5, 9, 247};
-    vector<int> expected_res = {1, 2, 3, 4, 5, 6, 7, 8, };
+    vector<int> expected_res = {9, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
     for (int j = 0; j < 10; j++)
     {
@@ -17,26 +17,26 @@ int main(){
         tmp1.keep = 1;
         tmp1.strb = 1;
         tmp1.user = 1;
+        tmp1.id = 0;
+        tmp1.dest = 1;
 
-        if (j = 9) {
+        if (j == 9) {
             tmp1.last = 1;
         } else {
             tmp1.last = 0;
         }
 
-        tmp1.id = 0;
-        tmp1.dest = 1;
-        A.write(tmp1);
+		A.write(tmp1);
+		example(A, B);
     }
 
-	example(A, B);
 
-    while(!B.empty()) {
+
+    for (int i = 0; i < 10; i++) {
+    	example(A, B);
 		B.read(tmp2);
-		cout << "Received ";
-		cout << tmp2.data << endl;
-		if (tmp2.data.to_int() == 0){
-			cout << "Expected : ";
+		if (tmp2.data.to_int() != expected_res[i]){
+			cout << "Failure: results doesn't match" << endl;
 			return 1;
 		}
     }
