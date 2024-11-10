@@ -36,17 +36,21 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
 
     while (1){
     	A.read(tmp);
-    	sum = sum + tmp.data.to_int();
+    	res[index] = tmp.data.to_int();
+    	index++;
     	if (tmp.last) {
     		break;
     	}
     }
 
-    while (1) {
-    	tmp.last = 1;
-    	tmp.data = sum;
-    	B.write(tmp);
-    	break;
+    for(int i = 0; i < 10; i++) {
+    	if(i == 9) {
+    		tmp.last = 1;
+    	} else {
+    		tmp.last = 0;
+    	}
+		tmp.data = res[i];
+		B.write(tmp);
     }
 
 }
