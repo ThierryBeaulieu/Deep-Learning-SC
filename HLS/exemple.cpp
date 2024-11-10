@@ -53,4 +53,5 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
 		B.write(tmp);
     }
 
+
 }
