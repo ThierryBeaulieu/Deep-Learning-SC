@@ -2,7 +2,6 @@
 #include "hls_stream.h"
 #include <vector>
 
-#define test3
 
 #ifdef prod
 int weights[10][401] = {
@@ -20,14 +19,6 @@ int weights[10][401] = {
 #endif
 
 
-
-
-static int weights[3][3] = {
-	{1, 0, 0},
-	{0, 1, 0},
-	{0, 0, 1}
-};
-
 const int RES_SIZE = 10;
 
 void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &B)
@@ -38,30 +29,22 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
 
     ap_axis<32,2,5,6> tmp;
 
-    static int res[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-    static bool sending = false;
+    static int sum = 0;
+    static int res[10] = {1,2,3,4,5,6,7,8,9,10};
     static int index = 0;
-    static int transferCount = 0;
 
-	if (!sending && !A.empty()) {
-		A.read(tmp);
-		res[index] = tmp.data.to_int();
-		index++;
-		if (tmp.last) {
-			sending = true;
-			return;
-		}
-	}
-
-	if (sending) {
-		tmp.data = res[transferCount];
-		B.write(tmp);
-		transferCount++;
-		if (transferCount == RES_SIZE){
-			sending = false;
-			transferCount = 0;
-			index = 0;
-		}
-
+    while (1){
+    	A.read(tmp);
+    	int fetchedData = tmp.data.to_int();
+    	tmp.data = res[index] + fetchedData;
+    	B.write(tmp);
+    	index++;
+    	if (index >= 10){
+    		index = 0;
+    	}
+    	if (tmp.last) {
+    		break;
+    	}
     }
+
 }
