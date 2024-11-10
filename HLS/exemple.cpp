@@ -23,17 +23,15 @@ void example(hls::stream<ap_axis<32,2,5,6>> &A, hls::stream<ap_axis<32,2,5,6>> &
     ap_axis<32,2,5,6> tmp;
 
     static int sum = 0;
-    static int res[10] = {1,2,3,4,5,6,7,8,9,10};
-    static int col = 0;
-
-    static int COL_SIZE = 10;
+    static int res[10] = {1,1,1,1,1,1,1,1,1,1};
+    static int row = 0;
 
     while (1){
     	A.read(tmp);
-    	for (int row = 0; row < COL_SIZE; row++) {
-    		res[col] = res[col] + weights[row][col] * tmp.data.to_int();
+    	for (int col = 0; col < 10; col++) {
+    		res[col] = res[col] + (weights[col][row] * tmp.data.to_int());
     	}
-    	col++;
+    	row++;
     	if (tmp.last) {
     		break;
     	}
